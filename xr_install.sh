@@ -16,7 +16,7 @@ yellow() {
     echo -e "\033[33m\033[01m$1\033[0m"
 }
 
-apk add -f openssl curl iproute2
+apk add openssl curl iproute2
 
 if [[ -f "/root/Xray/xray" ]]; then
     green "File already exist！"
@@ -47,11 +47,11 @@ until [[ ! -z $port ]] && [[ -z $(ss -ntlp | awk '{print $4}' | sed 's/.*://g' |
     fi
 done
 
-UUID=$(/root/xray uuid)
+UUID=$(/root/Xray/xray uuid)
 read -rp "Please enter the domain name for configuration fallback [default: www.microsoft.com]: " dest_server
 [[ -z $dest_server ]] && dest_server="www.microsoft.com"
 short_id=$(openssl rand -hex 8)
-keys=$(/root/xray x25519)
+keys=$(/root/Xray/xray x25519)
 private_key=$(echo $keys | awk -F " " '{print $3}')
 public_key=$(echo $keys | awk -F " " '{print $6}')
 green "private_key: $private_key"
