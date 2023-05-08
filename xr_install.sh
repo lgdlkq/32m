@@ -117,26 +117,6 @@ cat << EOF > config.json
 }
 EOF
 
-cat << EOF > /etc/init.d/xray
-#!/sbin/openrc-run
-name="xray"
-description="Xray Service"
-
-command="/root/Xray/xray"
-pidfile="/run/xray.pid"
-command_background="yes"
-rc_ulimit="-n 30000"
-rc_cgroup_cleanup="yes"
-
-depend() {
-    need net
-    after net
-}
-EOF
-chmod u+x /etc/init.d/xray
-rc-update add xray default
-service  xray start
-service xray status
 IP=$(expr "$(curl -ks4m8 -A Mozilla https://api.ip.sb/geoip)" : '.*ip\":[ ]*\"\([^"]*\).*')
 share_link="vless://$UUID@$IP:$port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$dest_server&fp=chrome&pbk=$public_key&sid=$short_id&type=tcp&headerType=none#32M-Reality"
 echo ${share_link} > /root/Xray/share-link.txt
@@ -188,8 +168,30 @@ rules:
   - MATCH,🚀 节点选择
 EOF
 
-yellow "Clash Meta configuration file has been saved to /root/sing-box/clash-meta.yaml"
-yellow "The following is the sharing link for Xray-Reality, which has been saved to /root/Xray/share-link. txt"
+yellow "Clash Meta configuration file has been saved to /root/Xray/clash-meta.yaml"
+yellow "The following is the sharing link for Xray-Reality, which has been saved to /root/Xray/share-link.txt"
 red $share_link
+
+cat << EOF > /etc/init.d/xray
+#!/sbin/openrc-run
+name="xray"
+description="Xray Service"
+
+command="/root/Xray/xray"
+pidfile="/run/xray.pid"
+command_background="yes"
+rc_ulimit="-n 30000"
+rc_cgroup_cleanup="yes"
+
+depend() {
+    need net
+    after net
+}
+EOF
+
+chmod u+x /etc/init.d/xray
+rc-update add xray default
+service  xray start
+service xray status
 
 cd /root
