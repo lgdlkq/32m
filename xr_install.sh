@@ -16,6 +16,8 @@ yellow() {
     echo -e "\033[33m\033[01m$1\033[0m"
 }
 
+apk add -f openssl curl
+
 if [[ -f "./Xray/xray" ]]; then
     green "File already exist！"
 else
@@ -130,10 +132,57 @@ chmod u+x /etc/init.d/xray
 rc-update add xray default
 service  xray start
 service xray status
-
 IP=$(expr "$(curl -ks4m8 -A Mozilla https://api.ip.sb/geoip)" : '.*ip\":[ ]*\"\([^"]*\).*')
 share_link="vless://$UUID@$IP:$port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$dest_server&fp=chrome&pbk=$public_key&sid=$short_id&type=tcp&headerType=none#32M-Reality"
 echo ${share_link} > /root/Xray/share-link.txt
-yellow "The following is the sharing link for Xray-Reality, which has been saved to /root/Xray/share link. txt"
+
+cat << EOF > /root/Xray/clash-meta.yaml
+mixed-port: 7890
+external-controller: 127.0.0.1:9090
+allow-lan: false
+mode: rule
+log-level: debug
+ipv6: false
+
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  enhanced-mode: fake-ip
+  nameserver:
+    - 8.8.8.8
+    - 1.1.1.1
+    - 114.114.114.114
+
+proxies:
+  - name: 32M-Reality
+    type: vless
+    server: $IP
+    port: $port
+    uuid: $UUID
+    network: tcp
+    tls: true
+    udp: true
+    xudp: true
+    flow: xtls-rprx-vision
+    servername: $dest_server
+    reality-opts:
+      public-key: "$public_key"
+      short-id: "$short_id"
+    client-fingerprint: chrome
+
+proxy-groups:
+  - name: Proxy
+    type: select
+    proxies:
+      - Misaka-Reality
+
+rules:
+  - GEOIP,CN,DIRECT
+  - MATCH,Proxy
+EOF
+
+yellow "Clash Meta configuration file has been saved to /root/sing-box/clash-meta.yaml"
+yellow "The following is the sharing link for Xray-Reality, which has been saved to /root/Xray/share-link. txt"
 red $share_link
+
 cd /root
