@@ -112,7 +112,7 @@ cat << EOF > config.json
     "downlinkOnly": 5,
     "statsUserUplink": false,
     "statsUserDownlink": false,
-    "bufferSize": 2048
+    "bufferSize": 1024
   }
 }
 EOF
