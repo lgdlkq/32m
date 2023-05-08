@@ -202,7 +202,7 @@ chmod u+x /etc/init.d/xray
 if ! rc-update show | grep xray | grep 'default' > /dev/null;then
     rc-update add xray default
 fi
-service xray start
+service xray restart
 service xray status
 
 cd /root
