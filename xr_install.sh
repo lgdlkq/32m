@@ -142,21 +142,22 @@ share_link="vless://$UUID@$IP:$port?encryption=none&flow=xtls-rprx-vision&securi
 echo ${share_link} > /root/Xray/share-link.txt
 
 cat << EOF > /root/Xray/clash-meta.yaml
-mixed-port: 7890
-external-controller: 127.0.0.1:9090
-allow-lan: false
-mode: rule
-log-level: debug
-ipv6: false
-
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: Rule
+log-level: info
+external-controller: :9090
 dns:
-  enable: true
-  listen: 0.0.0.0:53
-  enhanced-mode: fake-ip
-  nameserver:
-    - 8.8.8.8
-    - 1.1.1.1
-    - 114.114.114.114
+    enable: true
+    ipv6: false
+    default-nameserver: [223.5.5.5, 119.29.29.29]
+    enhanced-mode: fake-ip
+    fake-ip-range: 198.18.0.1/16
+    use-hosts: true
+    nameserver: ['https://doh.pub/dns-query', 'https://dns.alidns.com/dns-query']
+    fallback: ['https://doh.dns.sb/dns-query', 'https://dns.cloudflare.com/dns-query', 'https://dns.twnic.tw/dns-query', 'tls://8.8.4.4:853']
+    fallback-filter: { geoip: true, ipcidr: [240.0.0.0/4, 0.0.0.0/32] }
 
 proxies:
   - name: 32M-Reality
@@ -176,14 +177,15 @@ proxies:
     client-fingerprint: chrome
 
 proxy-groups:
-  - name: Proxy
+  - name: 🚀 节点选择
     type: select
     proxies:
       - 32M-Reality
+      - DIRECT
 
 rules:
-  - GEOIP,CN,DIRECT
-  - MATCH,Proxy
+  - GEOIP,CN,DIRECT,no-resolve
+  - MATCH,🚀 节点选择
 EOF
 
 yellow "Clash Meta configuration file has been saved to /root/sing-box/clash-meta.yaml"
