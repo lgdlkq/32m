@@ -16,7 +16,7 @@ yellow() {
     echo -e "\033[33m\033[01m$1\033[0m"
 }
 
-apk add -f openssl curl
+apk add -f openssl curl iproute2
 
 if [[ -f "./Xray/xray" ]]; then
     green "File already exist！"
@@ -34,15 +34,18 @@ else
         exit 1
     fi
 fi
+
 read -p "Set the xray reality port number：" port
-[[ -z $port ]]
-until [[ -z $(ss -ntlp | awk '{print $4}' | sed 's/.*://g' | grep -w "$port") ]]; do
-    if [[ -n $(ss -ntlp | awk '{print $4}' | sed 's/.*://g' | grep -w "$port") ]]; then
+until [[ ! -z $port ]] && [[ -z $(ss -ntlp | awk '{print $4}' | sed 's/.*://g' | grep -w "$port") ]]; do
+    if [[ -z $port ]]; then
+        red "The port number is empty. Please enter a port number within the given range of TG BOT!"
+        read -p "Set the xray reality port number：" port
+    elif [[ -n $(ss -ntlp | awk '{print $4}' | sed 's/.*://g' | grep -w "$port") ]]; then
         echo -e "${RED} $port ${PLAIN} The port is not available, please re-enter the port number！"
         read -p "Set the xray reality port number：" port
-        [[ -z $port ]]
     fi
 done
+
 UUID=$(./xray uuid)
 read -rp "Please enter the domain name for configuration fallback [default: www.microsoft.com]: " dest_server
 [[ -z $dest_server ]] && dest_server="www.microsoft.com"
