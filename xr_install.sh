@@ -173,6 +173,7 @@ yellow "Clash Meta configuration file has been saved to /root/Xray/clash-meta.ya
 yellow "The following is the sharing link for Xray-Reality, which has been saved to /root/Xray/share-link.txt"
 red $share_link
 
+rm -f /etc/init.d/xray
 cat << EOF > /etc/init.d/xray
 #!/sbin/openrc-run
 name="xray"
@@ -188,10 +189,37 @@ depend() {
     need net
     after net
 }
+
+start() {
+   ebegin "Starting xray"
+   start-stop-daemon --start \
+        --exec $command \
+        --make-pidfile --pidfile $pidfile
+   eend $?
+}
+
+stop() {
+   ebegin "Stopping xray"
+   start-stop-daemon --stop \ 
+        --exec $command \
+        --pidfile $pidfile
+   eend $?
+}
+
+reload() {
+    ebegin "Reloading xray"
+    start-stop-daemon --exec $command \
+        --pidfile $pidfile \
+        -s 1
+    eend $?
+}
+
 EOF
 
 chmod u+x /etc/init.d/xray
-rc-update add xray default
+if ! rc-update show | grep xray | grep 'default';then
+    rc-update add xray default
+fi
 service xray start
 service xray status
 
