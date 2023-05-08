@@ -191,7 +191,7 @@ EOF
 
 chmod u+x /etc/init.d/xray
 rc-update add xray default
-service  xray start
+service xray start
 service xray status
 
 cd /root
