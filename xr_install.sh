@@ -18,15 +18,16 @@ yellow() {
 
 apk add -f openssl curl iproute2
 
-if [[ -f "./Xray/xray" ]]; then
+if [[ -f "/root/Xray/xray" ]]; then
     green "File already exist！"
 else
     echo "Start downloading xray files..."
     wget https://github.com/XTLS/Xray-core/releases/download/v1.8.1/Xray-linux-32.zip
-    mkdir Xray
-    unzip -d ./Xray Xray-linux-32.zip
+    cd /root
+    mkdir ./Xray
+    unzip -d /root/Xray Xray-linux-32.zip
     rm Xray-linux-32.zip
-    cd ./Xray
+    cd /root/Xray
     if [[ -f "xray" ]]; then
         green "download success！"
     else
@@ -46,19 +47,19 @@ until [[ ! -z $port ]] && [[ -z $(ss -ntlp | awk '{print $4}' | sed 's/.*://g' |
     fi
 done
 
-UUID=$(./xray uuid)
+UUID=$(/root/xray uuid)
 read -rp "Please enter the domain name for configuration fallback [default: www.microsoft.com]: " dest_server
 [[ -z $dest_server ]] && dest_server="www.microsoft.com"
 short_id=$(openssl rand -hex 8)
-keys=$(./xray x25519)
+keys=$(/root/xray x25519)
 private_key=$(echo $keys | awk -F " " '{print $3}')
 public_key=$(echo $keys | awk -F " " '{print $6}')
 green "private_key: $private_key"
 green "public_key: $public_key"
 green "short_id: $short_id"
 
-rm -f config.json
-cat << EOF > config.json
+rm -f /root/Xray/config.json
+cat << EOF > /root/Xray/config.json
 {
   "inbounds": [
       {
