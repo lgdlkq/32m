@@ -53,8 +53,9 @@ short_id=$(openssl rand -hex 8)
 keys=$(./xray x25519)
 private_key=$(echo $keys | awk -F " " '{print $3}')
 public_key=$(echo $keys | awk -F " " '{print $6}')
-green $keys
-green $short_id
+green "private_key: $private_key"
+green "public_key: $public_key"
+green "short_id: $short_id"
 
 rm -f config.json
 cat << EOF > config.json
