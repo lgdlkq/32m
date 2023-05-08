@@ -190,34 +190,16 @@ depend() {
     after net
 }
 
-start() {
-   ebegin "Starting xray"
-   start-stop-daemon --start \
-        --exec $command \
-        --make-pidfile --pidfile $pidfile
-   eend $?
-}
-
 stop() {
    ebegin "Stopping xray"
-   start-stop-daemon --stop \ 
-        --exec $command \
-        --pidfile $pidfile
+   start-stop-daemon --stop --name xray
    eend $?
-}
-
-reload() {
-    ebegin "Reloading xray"
-    start-stop-daemon --exec $command \
-        --pidfile $pidfile \
-        -s 1
-    eend $?
 }
 
 EOF
 
 chmod u+x /etc/init.d/xray
-if ! rc-update show | grep xray | grep 'default';then
+if ! rc-update show | grep xray | grep 'default' > /dev/null;then
     rc-update add xray default
 fi
 service xray start
