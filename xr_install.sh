@@ -179,7 +179,7 @@ proxy-groups:
   - name: Proxy
     type: select
     proxies:
-      - Misaka-Reality
+      - 32M-Reality
 
 rules:
   - GEOIP,CN,DIRECT
