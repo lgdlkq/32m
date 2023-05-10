@@ -16,7 +16,7 @@ yellow() {
     echo -e "\033[33m\033[01m$1\033[0m"
 }
 
-apk add curl iproute2
+apk add curl
 
 if [[ -f "/root/Xray/xray" ]]; then
     green "File already exist！"
@@ -37,11 +37,11 @@ else
 fi
 
 read -p "Set the xray reality port number：" port
-until [[ ! -z $port ]] && [[ -z $(ss -ntlp | awk '{print $4}' | sed 's/.*://g' | grep -w "$port") ]]; do
+until [[ ! -z $port ]] && [[ -z $(netstat -tln | grep ":$port") ]]; do
     if [[ -z $port ]]; then
         red "The port number is empty. Please enter a port number within the given range of TG BOT!"
         read -p "Set the xray reality port number：" port
-    elif [[ -n $(ss -ntlp | awk '{print $4}' | sed 's/.*://g' | grep -w "$port") ]]; then
+    elif [[ -z $(netstat -tln | grep ":$port") ]]; then
         echo -e "${RED} $port ${PLAIN} The port is not available, please re-enter the port number！"
         read -p "Set the xray reality port number：" port
     fi
