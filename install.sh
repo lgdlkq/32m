@@ -16,8 +16,6 @@ yellow() {
     echo -e "\033[33m\033[01m$1\033[0m"
 }
 
-apk add curl
-
 if [[ -f "/root/Xray/xray" ]]; then
     green "File already exist！"
 else
@@ -118,7 +116,7 @@ cat << EOF > /root/Xray/config.json
 }
 EOF
 
-IP=$(expr "$(curl -ks4m8 -A Mozilla https://api.ip.sb/geoip)" : '.*ip\":[ ]*\"\([^"]*\).*')
+IP=$(wget -qO- --no-check-certificate --max-redirect=0 -U Mozilla https://api.ip.sb/geoip | sed -n 's/.*"ip": *"\([^"]*\).*/\1/p')
 share_link="vless://$UUID@$IP:$port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$dest_server&fp=chrome&pbk=$public_key&sid=$short_id&type=tcp&headerType=none#32M-Reality"
 echo ${share_link} > /root/Xray/share-link.txt
 
