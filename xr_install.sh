@@ -2,7 +2,6 @@
 RED="\033[31m"
 GREEN="\033[32m"
 YELLOW="\033[33m"
-PLAIN='\033[0m'
 
 red() {
     echo -e "\033[31m\033[01m$1\033[0m"
@@ -11,17 +10,14 @@ red() {
 green() {
     echo -e "\033[32m\033[01m$1\033[0m"
 }
-
 yellow() {
     echo -e "\033[33m\033[01m$1\033[0m"
 }
 
-apk add openssl curl iproute2
-
 if [[ -f "/root/Xray/xray" ]]; then
-    green "File already exist！"
+    green "xray文件已存在！"
 else
-    echo "Start downloading xray files..."
+    echo "开始下载xray文件..."
     wget https://github.com/XTLS/Xray-core/releases/download/v1.8.1/Xray-linux-32.zip
     cd /root
     mkdir ./Xray
@@ -29,28 +25,44 @@ else
     rm Xray-linux-32.zip
     cd /root/Xray
     if [[ -f "xray" ]]; then
-        green "download success！"
+        green "下载成功！"
     else
-        red "download faild！"
+        red "下载失败！"
         exit 1
     fi
 fi
 
-read -p "Set the xray reality port number：" port
-until [[ ! -z $port ]] && [[ -z $(ss -ntlp | awk '{print $4}' | sed 's/.*://g' | grep -w "$port") ]]; do
+read -p "请输入reality端口号：" port
+sign=false
+until $sign; do
     if [[ -z $port ]]; then
-        red "The port number is empty. Please enter a port number within the given range of TG BOT!"
-        read -p "Set the xray reality port number：" port
-    elif [[ -n $(ss -ntlp | awk '{print $4}' | sed 's/.*://g' | grep -w "$port") ]]; then
-        echo -e "${RED} $port ${PLAIN} The port is not available, please re-enter the port number！"
-        read -p "Set the xray reality port number：" port
+        red "错误：端口号不能为空，请输入小鸡管家给定的可用端口号!"
+        read -p "请重新输入reality端口号：" port
+        continue
+    fi
+    if ! echo "$port" | grep -qE '^[0-9]+$';then
+        red "错误：端口号必须是数字!"
+        read -p "请重新输入reality端口号：" port
+        continue
+    fi
+    if [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+        red "错误：端口号必须介于1~65525之间!"
+        read -p "请重新输入reality端口号：" port
+        continue
+    fi
+    if [[ -z $(nc -zv 127.0.0.1 $port 2>&1 | grep "open") ]]; then
+        green "成功：端口号 $port 可用!"
+        sign=true
+    else
+        red "错误：$port 已被占用！"
+        read -p "请重新输入reality端口号：" port
     fi
 done
 
-UUID=$(/root/Xray/xray uuid)
-read -rp "Please enter the domain name for configuration fallback [default: www.microsoft.com]: " dest_server
+UUID=$(cat /proc/sys/kernel/random/uuid)
+read -rp "请输入回落域名[默认: www.microsoft.com]: " dest_server
 [[ -z $dest_server ]] && dest_server="www.microsoft.com"
-short_id=$(openssl rand -hex 8)
+short_id=$(dd bs=4 count=2 if=/dev/urandom | xxd -p -c 8)
 keys=$(/root/Xray/xray x25519)
 private_key=$(echo $keys | awk -F " " '{print $3}')
 public_key=$(echo $keys | awk -F " " '{print $6}')
@@ -118,7 +130,9 @@ cat << EOF > /root/Xray/config.json
 }
 EOF
 
-IP=$(expr "$(curl -ks4m8 -A Mozilla https://api.ip.sb/geoip)" : '.*ip\":[ ]*\"\([^"]*\).*')
+IP=$(wget -qO- --no-check-certificate -U Mozilla https://api.ip.sb/geoip | sed -n 's/.*"ip": *"\([^"]*\).*/\1/p')
+green "您的IP为：$IP"
+
 share_link="vless://$UUID@$IP:$port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$dest_server&fp=chrome&pbk=$public_key&sid=$short_id&type=tcp&headerType=none#32M-Reality"
 echo ${share_link} > /root/Xray/share-link.txt
 
@@ -169,8 +183,10 @@ rules:
   - MATCH,🚀 节点选择
 EOF
 
-yellow "Clash Meta configuration file has been saved to /root/Xray/clash-meta.yaml"
-yellow "The following is the sharing link for Xray-Reality, which has been saved to /root/Xray/share-link.txt"
+yellow "Clash Meta配置文件已保存到：/root/Xray/clash-meta.yaml"
+yellow "reality的分享链接已保存到：/root/Xray/share-link.txt"
+echo
+green "reality的分享链接为："
 red $share_link
 
 rm -f /etc/init.d/xray
