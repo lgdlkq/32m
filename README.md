@@ -12,7 +12,10 @@ service xray start
 ```
 service xray restart
 ```
-
+#### 停止：
+```
+service xray stop
+```
 ## xr_install.sh
 ### 基于xray的vless+reality
 #### 执行命令：
