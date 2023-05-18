@@ -1,10 +1,32 @@
 # i686架构apline系统节点搭建
+## 下述脚本通用命令：
+#### 查看运行状态：
+```
+service xray status
+```
+#### 启动：
+```
+service xray start
+```
+#### 重启：
+```
+service xray restart
+```
+
 ## xr_install.sh
 ### 基于xray的vless+reality
 #### 执行命令：
-
 ```
 apk update && wget https://raw.githubusercontent.com/lgdlkq/32m/main/xr_install.sh -O xr_install.sh && ash xr_install.sh
+```
+#### 完全删除命令：
+
+```
+service xray stop
+rc-update del xray default
+rm -f /etc/init.d/xray
+cd /root 
+rm -rf ./Xray
 ```
 
 ## apline_vm_ws_tls.sh
@@ -17,7 +39,20 @@ apk update && wget https://raw.githubusercontent.com/lgdlkq/32m/main/xr_install.
 #### 重点说明：
   1. 脚本执行如果nat服务器已完成了端口映射（映射的内部端口为cf支持的https端口），则在脚本执行到“服务商已提供映射或可通过操作面板完成映射？1.是；2.否; other.退出(默认为2)”时输入1；
   2. 如果nat服务器未进行端口映射，但提供了操作面板进行端口映射，则在脚本执行到“服务商已提供映射或可通过操作面板完成映射？1.是；2.否; other.退出(默认为2)”时输入1，并到面板手动配置映射端口；
-  3. 否则请默认执行（或输入2），并在接下来输入cloudflare规则配置时的高位端口号。
+  3. 否则请默认执行（或输入2），并在接下来输入cloudflare规则配置时的高位端口号。 
+
+#### 完全删除命令：
+
+```
+service xray stop
+rc-update del xray default
+rm -f /etc/init.d/xray
+cd /root 
+rm -rf ./Xray
+iptables -t nat -F PREROUTING
+rm -f /etc/iptables/rules.v4
+apk del iptables
+```
 
 #### 执行命令：
 
