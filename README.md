@@ -48,6 +48,12 @@ rm -rf ./Xray
   2. 如果nat服务器未进行端口映射，但提供了操作面板进行端口映射，则在脚本执行到“服务商已提供映射或可通过操作面板完成映射？1.是；2.否; other.退出(默认为2)”时输入1，并到面板手动配置映射端口；
   3. 否则请默认执行（或输入2），并在接下来输入cloudflare规则配置时的高位端口号。 
 
+#### 执行命令：
+
+```
+apk update && wget https://raw.githubusercontent.com/lgdlkq/32m/main/apline_vm_ws_tls.sh -O apline_vm_ws_tls.sh && ash apline_vm_ws_tls.sh
+```
+
 #### 完全删除命令：
 
 ```
@@ -59,12 +65,6 @@ rm -rf ./Xray
 iptables -t nat -F PREROUTING
 rm -f /etc/iptables/rules.v4
 apk del iptables
-```
-
-#### 执行命令：
-
-```
-apk update && wget https://raw.githubusercontent.com/lgdlkq/32m/main/apline_vm_ws_tls.sh -O apline_vm_ws_tls.sh && ash apline_vm_ws_tls.sh
 ```
 
 ## 其他
